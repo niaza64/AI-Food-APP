@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Trends Tracker - AI Powered</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes bounce-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-slide-in-right { animation: slideInRight 0.6s ease-out; }
+        .animate-slide-in-left { animation: slideInLeft 0.6s ease-out; }
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out; }
+        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+        .animate-bounce-gentle { animation: bounce-gentle 2s ease-in-out infinite; }
+        
+        /* Gradient borders */
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border-radius: 1.5rem;
+        }
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 1.5rem;
+            padding: 2px;
+            background: linear-gradient(145deg, rgba(255,107,107,0.5), rgba(255,195,0,0.5), rgba(0,234,255,0.5));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 overflow-x-hidden">
+    <!-- Fun floating food emojis -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none opacity-10 text-6xl">
+        <div class="absolute top-10 left-10 animate-float" style="animation-delay: 0s;">🍕</div>
+        <div class="absolute top-20 right-20 animate-float" style="animation-delay: 1s;">🍔</div>
+        <div class="absolute bottom-20 left-20 animate-float" style="animation-delay: 2s;">🌮</div>
+        <div class="absolute bottom-10 right-10 animate-float" style="animation-delay: 1.5s;">🍜</div>
+        <div class="absolute top-1/2 left-1/4 animate-float" style="animation-delay: 0.5s;">🥗</div>
+        <div class="absolute top-1/3 right-1/3 animate-float" style="animation-delay: 2.5s;">🍱</div>
+    </div>
+
+    <div class="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
+        <!-- Creative Header -->
+        <header class="mb-8 animate-fade-in-up">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+                <!-- Decorative circles -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-orange-300 to-pink-400 rounded-full opacity-20 animate-spin-slow"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-br from-purple-300 to-blue-400 rounded-full opacity-20 animate-spin-slow" style="animation-delay: -10s;"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div>
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="text-5xl animate-bounce-gentle">🍽️</div>
+                            <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+                                Food Trends
+                            </h1>
+                        </div>
+                        <p class="text-gray-600 text-lg font-medium ml-16">Discover what's hot in the food world with AI magic ✨</p>
+                    </div>
+                    <div class="flex flex-col gap-2 text-right">
+                        <div class="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-semibold text-green-700">Live Tracking</span>
+                        </div>
+                        <div id="cacheStatus" class="hidden bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl border border-gray-200 text-xs"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 mb-8 animate-slide-in-left">
+            <button id="collectBtn" class="group relative flex-1 md:flex-none px-8 py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span class="relative flex items-center justify-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Discover Trends
+                </span>
+            </button>
+            <button id="viewReportBtn" class="flex-1 md:flex-none px-8 py-4 bg-white text-gray-700 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-gray-200 hover:border-purple-300">
+                <span class="flex items-center justify-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Latest Report
+                </span>
+            </button>
+            <button id="forceRefreshBtn" class="flex-1 md:flex-none px-8 py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <span class="flex items-center justify-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Force Refresh
+                </span>
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden bg-white rounded-3xl shadow-2xl p-12 text-center animate-fade-in-up">
+            <div class="flex justify-center mb-6">
+                <div class="relative w-24 h-24">
+                    <div class="absolute inset-0 border-8 border-orange-200 rounded-full"></div>
+                    <div class="absolute inset-0 border-8 border-orange-500 rounded-full border-t-transparent animate-spin"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-3xl">🔍</div>
+                </div>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Cooking up fresh insights...</h3>
+            <p class="text-gray-600">Gathering data from Google Trends</p>
+            <p class="text-sm text-gray-400 mt-2">This takes about 15-30 seconds ⏱️</p>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status" class="hidden"></div>
+
+        <!-- Report Container -->
+        <div id="report" class="hidden">
+            <!-- Report Header Card -->
+            <div class="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 rounded-3xl shadow-2xl p-8 mb-6 text-white animate-slide-in-right">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <h2 class="text-4xl font-black mb-2">Trend Report 📊</h2>
+                        <div class="flex items-center gap-2 text-white/90">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span id="reportDate" class="font-medium"></span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+                            <div class="text-xs text-white/80">🔥 Trending Foods</div>
+                            <div class="text-2xl font-bold" id="viralCount">0</div>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+                            <div class="text-xs text-white/80">💡 AI Ideas</div>
+                            <div class="text-2xl font-bold" id="ideasCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creative Tab Navigation -->
+            <div class="flex gap-3 mb-6 p-2 bg-white rounded-2xl shadow-lg">
+                <button class="tab-btn flex-1 px-6 py-4 rounded-xl font-bold transition-all duration-300 active bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg" data-tab="viral-foods">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-2xl">🔥</span>
+                        <span>Trending Foods</span>
+                    </span>
+                </button>
+                <button class="tab-btn flex-1 px-6 py-4 rounded-xl font-bold transition-all duration-300 text-gray-600 hover:bg-gray-50" data-tab="ai-insights">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-2xl">🤖</span>
+                        <span>AI Ideas</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Trending Foods Tab -->
+                <div id="viral-foods" class="tab-pane active">
+                    <div class="bg-white rounded-3xl shadow-xl p-6 mb-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg animate-bounce-gentle">
+                                🔥
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">Trending Foods</h3>
+                                <p class="text-gray-600">Popular food trends from Google Trends</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="viralFoodsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+
+                <!-- AI Insights Tab -->
+                <div id="ai-insights" class="tab-pane hidden">
+                    <div class="bg-white rounded-3xl shadow-xl p-6 mb-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
+                                💡
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">AI Product Ideas</h3>
+                                <p class="text-gray-600">Innovation ideas based on trending foods</p>
+                            </div>
+                        </div>
+                        <div id="summary"></div>
+                    </div>
+                    <div id="trends" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
